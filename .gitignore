@@ -127,3 +127,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+.vscode/launch.json
+.vscode/settings.json
+.vscode/
+workspace.code-workspace
+
+media_sanitizer/data/arangodb_creds
+media_sanitizer/data/tmdb_api_key
