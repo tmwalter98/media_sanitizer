@@ -20,7 +20,7 @@ class MatchEngine:
         workers = dict()
 
         # Prepare Database Retriever Worker
-        aql = db.get_async_aql()
+        retriever_aql = db.get_async_aql()
         workers['retriever'] = Database_Retriever(1, aql, analyze_queue)
 
         # Prepare File Analyzer Worker
@@ -30,6 +30,10 @@ class MatchEngine:
         # Prepare Search Engine Worker
         workers['search_engine'] = Search_Engine(3, search_queue,
                                                  search_results, tmdb)
+        # Prepare Match Analyzer
+        matcher_aql = db.get_async_aql()
+        workers['analyze_matches'] = Match_Analyzer(4, search_results,
+                                                    matcher_aql)
 
         # Start workers
         for title, instance in workers.items():
@@ -134,7 +138,7 @@ class Search_Engine (threading.Thread):
         return results
 
     def search_episode(file):
-        print('FUCK! lol')
+        print('LOLL! lol')
 
     def run(self):
         print('starting {}'.format(self.threadID))
@@ -160,3 +164,16 @@ class Search_Engine (threading.Thread):
                             specemin['match'] = results
                             print(json.dumps(specemin, indent=2), '\n\n\n\n')
                             search_results.put(specemin)
+
+
+class Match_Analyzer (threading.Thread):
+    def __init__(self, threadID, search_results, matcher_aql):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.search_results = search_results
+        self.matcher_aql = matcher_aql
+
+    def run(self):
+        while True:
+            if search_results.qsize() > 0:
+                title_results = search_results.get()
